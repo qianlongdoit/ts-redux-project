@@ -1,17 +1,18 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Dispatch} from "redux";
-import {addTodo, deleteTodo} from '../actions/addTodo'
+import {addTodo, deleteTodo, toggleTodo} from '../actions/addTodo'
 import {AppState} from '../reducers/todos'
 
 interface Props {
     lists: AppState[];
     addItem: (text: string) => void;
     deleteItem: (text: number) => void;
+    toggleItem: (index: number, finished: boolean) => void;
 }
 
 type StateProps = Pick<Props, 'lists'>
-type DispatchProps = Pick<Props, 'addItem' | 'deleteItem'>
+type DispatchProps = Pick<Props, 'addItem' | 'deleteItem' | 'toggleItem'>
 
 function mapPropsToState(state: StateProps) {
     return {
@@ -26,6 +27,9 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
         },
         deleteItem: (index: number) => {
             dispatch(deleteTodo(index))
+        },
+        toggleItem: (index: number, finished: boolean) => {
+            dispatch(toggleTodo(index, finished))
         }
     }
 }
@@ -57,6 +61,12 @@ class TodoList extends React.Component<Props, any> {
                                 style={{cursor: 'pointer', margin: '0 10px'}}
                                 onClick={this.handleDeleteTodo.bind(this, i)}
                             >删除</span>
+                            &nbsp;&nbsp;&nbsp;
+                            <input
+                                type="checkbox"
+                                checked={l.finished}
+                                onChange={this.handleFinished.bind(this, i)}
+                            />已完成
                         </li>
                     ))}
                 </ul>
@@ -73,6 +83,11 @@ class TodoList extends React.Component<Props, any> {
 
     handleDeleteTodo = (i) => {
         this.props.deleteItem(i);
+    }
+
+    handleFinished = (i, e) => {
+        let checked = e.target.checked;
+        this.props.toggleItem(i, checked);
     }
 }
 
